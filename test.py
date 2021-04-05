@@ -10,7 +10,7 @@ from scipy.stats import *
 import warnings
 warnings.simplefilter("ignore")
 
-from PP_pack.plantstat import Variable_Analyzer
+from plantstat import Variable_Analyzer
 
 # Example of the data
 data = np.array([[54, 27, 43, 30, 29, 23, 71, 68, 64, 66, 64, 70, 49, 49, 
