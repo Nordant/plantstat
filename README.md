@@ -13,5 +13,5 @@ The package is based on such basic packages as:
 
 You will find an example of using the package in the test.py and test.ipynb files.
 
-## You can download the package via:
+## You can download plantstat package via:
 `pip install git+https://github.com/Nordant/plantstat.git#egg=plantstat`
