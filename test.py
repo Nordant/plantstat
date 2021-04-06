@@ -29,6 +29,7 @@ a = Variable_Analyzer(data, labels)
 # All functions
 a.stat(np.mean)
 a.stat(iqr)
+a.labels
 
 a.outliers()
 
@@ -40,11 +41,12 @@ a.basic_stats()
 
 a.var_compare()
 
+a.get_pairs()
+a.get_pairs(indices = True)
+
 a.corrs()
 a.corrs(method = 'pearson', heatmap = True)
 
 a.QQplot()
 
 a.pair_plot()
-
-
