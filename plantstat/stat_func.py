@@ -63,11 +63,13 @@ class Variable_Analyzer:
         Function for boxplot visualization.
         Output - boxplots of all variables.
         '''
-        fig, axs = plt.subplots(1, len(self.array))
         for idx, array in enumerate(self.array):
-            axs[idx].boxplot(array)
-            axs[idx].set_xlabel(self.labels[idx])
-        plt.show()
+            fig, ax = plt.subplots(figsize = (4, 4), dpi = 100)
+            plt.title('Boxplot ({})'.format(self.labels[idx]))
+            sns.boxplot(y = array, color = 'gray', linewidth = 1.5)
+            sns.swarmplot(y = array, color = 'blue', edgecolor = 'black', 
+                          alpha = .9)
+            plt.show()
         
     def basic_stats(self):
         '''
@@ -144,13 +146,24 @@ class Variable_Analyzer:
             # Use only when the number of observation in each sample is > 20 
             # and you have 2 independent samples of ranks.
             # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.mannwhitneyu.html#scipy.stats.mannwhitneyu
-            if (len(first) < 20) and (len(second) < 20):
+            if (len(first) > 20) and (len(second) > 20):
                 comp_df.loc[idx, 'mannwhitneyu_p'] = round(mannwhitneyu(first, second)[1], 3)
             else:
                 comp_df.loc[idx, 'mannwhitneyu_p'] = np.NaN
             
         return comp_df
     
+    def get_pairs(self, indices = False):
+        '''
+        Return a list of all pairs of variables.
+        Can return indices or labels' names.
+        '''
+        if indices == False:
+            p = list(combinations(self.labels, 2))
+        else:
+            p = list(combinations(range(len(self.labels)), 2))
+        return p
+            
     def corrs(self, method = 'pearson', heatmap = False):
         '''
         Function for creating a corr matrix.
