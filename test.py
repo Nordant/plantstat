@@ -3,16 +3,19 @@ Created on Thu Apr 5 2021
 @author: Nordant
 """
 
-import numpy as np
-from scipy.stats import *
-
 # ignoring warnings
 import warnings
 warnings.simplefilter("ignore")
 
+### ---------------------------------------------- ###
+### --------------- Variable_Analyzer ------------ ###
+### ---------------------------------------------- ###
+
+import numpy as np
+from scipy.stats import *
+
 from plantstat import Variable_Analyzer
 
-# Example of the data
 data = np.array([[54, 27, 43, 30, 29, 23, 71, 68, 64, 66, 64, 70, 49, 49, 
                  55, 45, 48, 49, 38],
                 [53, 43, 55, 63, 82, 79, 70, 57, 60, 43, 49, 65, 54],
@@ -32,6 +35,8 @@ a.stat(iqr)
 a.labels
 
 a.outliers()
+a.cleaned_data
+
 
 a.boxplot()
 
@@ -50,3 +55,39 @@ a.corrs(method = 'pearson', heatmap = True)
 a.QQplot()
 
 a.pair_plot()
+
+
+
+
+### ---------------------------------------------- ###
+### -------------------- Auto_ML ----------------- ###
+### ---------------------------------------------- ###
+
+# AutoML_Classifier
+import pandas as pd
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+
+from plantstat import AutoML_Classifier
+
+iris = datasets.load_iris()
+X = pd.DataFrame(iris.data)
+y = iris.target
+class_names = iris.target_names
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, 
+                                                    random_state = 0)
+
+model = AutoML_Classifier()
+model.fit(X_train, y_train)
+
+# model.cv_results_
+# model.best_estimator_
+# model.best_pipeline
+
+model.predict(X_test)
+model.predict_proba(X_test)[:5]
+
+model.classification_report(X_test, y_test, labels = class_names, cmap = 'cividis')
+
+
