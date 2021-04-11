@@ -7,7 +7,7 @@ The package is based on such basic packages as:
 - [numpy](https://numpy.org/)
 - [pandas](https://pandas.pydata.org/)
 - [matplotlib](https://matplotlib.org/)
-- [seaborn](https://seaborn.pydata.org/)
+- [scikit-learn](https://scikit-learn.org/stable/)
 - [scipy](https://docs.scipy.org/doc/scipy/reference/index.html)
 - [statsmodels](https://www.statsmodels.org/stable/index.html)
 
