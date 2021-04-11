@@ -11,7 +11,7 @@ The package is based on such basic packages as:
 - [scipy](https://docs.scipy.org/doc/scipy/reference/index.html)
 - [statsmodels](https://www.statsmodels.org/stable/index.html)
 
-You will find an example of using the package in test.py and test.ipynb files.
+You will find an example of using the package in test.py.
 
 ## You can download plantstat package via:
 `pip install git+https://github.com/Nordant/plantstat.git#egg=plantstat`
