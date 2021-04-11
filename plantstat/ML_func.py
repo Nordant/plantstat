@@ -1,15 +1,6 @@
-"""
-Created on Sat Apr 10 2021
-@author: Nordant
-"""
-
 import numpy as np
-import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns
 import statsmodels.api as sm
-
-from sklearn.model_selection import train_test_split
 
 from sklearn.impute import SimpleImputer
 from sklearn.compose import ColumnTransformer, make_column_selector
@@ -24,10 +15,9 @@ from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
 from sklearn.neighbors import KNeighborsClassifier
 from sklearn.tree import DecisionTreeClassifier
-from sklearn.svm import LinearSVC, SVC, SVR
+from sklearn.svm import LinearSVC, SVR
 from xgboost import XGBClassifier, XGBRegressor
 
-from sklearn.datasets import load_breast_cancer
 from sklearn.metrics import balanced_accuracy_score, classification_report, plot_confusion_matrix
 from sklearn.metrics import mean_absolute_error
 
@@ -39,13 +29,26 @@ class AutoML_Classifier:
     the number of iterations of parameters search (default = 50),
     a random_state parameter (default = 0) and a number of cross_validation 
     repeats (default = 5).
+    Set False for those algorithms you don't want to use.
     '''
-    def __init__(self, scoring_func = 'balanced_accuracy', n_iter = 50,
-                 random_state = 0, cv = 5):
+    def __init__(self, scoring_func = 'balanced_accuracy', 
+                 n_iter = 50, random_state = 0, cv = 5,
+                 LogisticRegression = True, KNN = True,
+                 DecisionTree = True, RandomForest = True,
+                 LinearSVC = True, GradientBoosting = True,
+                 XGB = True):
         self.scoring_func = scoring_func
         self.n_iter = n_iter
         self.random_state = random_state
         self.cv = cv
+        
+        self.LogisticRegression = LogisticRegression
+        self.KNN = KNN
+        self.DecisionTree = DecisionTree
+        self.RandomForest = RandomForest
+        self.LinearSVC = LinearSVC
+        self.GradientBoosting = GradientBoosting
+        self.XGB = XGB
         
     def fit(self, X, y):
         '''
@@ -87,73 +90,79 @@ class AutoML_Classifier:
         total_features = preprocessor.fit_transform(X_train).shape[1]
         optimization_grid = []
         
-        # ALGORITHMS
+        # ALGORITHMS SELECTION
         # Logistic regression
-        optimization_grid.append({
-            'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
-            'preprocessor__numerical__cleaner_strategy': ['mean', 'median'],
-            'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
-            'estimator': [LogisticRegression()]
-        })
+        if self.LogisticRegression == True:
+            optimization_grid.append({
+                'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
+                'preprocessor__numerical__cleaner_strategy': ['mean', 'median'],
+                'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
+                'estimator': [LogisticRegression()]
+            })
         
         # K-nearest neighbors
-        optimization_grid.append({
-            'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
-            'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
-            'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
-            'estimator': [KNeighborsClassifier()],
-            'estimator__weights': ['uniform', 'distance'],
-            'estimator__n_neighbors': np.arange(1, 20, 1)
-        })
-
+        if self.KNN == True:
+            optimization_grid.append({
+                'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
+                'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
+                'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
+                'estimator': [KNeighborsClassifier()],
+                'estimator__weights': ['uniform', 'distance'],
+                'estimator__n_neighbors': np.arange(1, 20, 1)
+            })
+        
+        # Decision tree
+        if self.DecisionTree == True:
+            optimization_grid.append({
+                'preprocessor__numerical__scaler': [None],
+                'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
+                'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
+                'estimator': [DecisionTreeClassifier(random_state = self.random_state)],
+                'estimator__criterion': ['gini', 'entropy']
+            })
+        
         # Random Forest
-        optimization_grid.append({
-            'preprocessor__numerical__scaler': [None],
-            'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
-            'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
-            'estimator': [RandomForestClassifier(random_state = self.random_state)],
-            'estimator__n_estimators': np.arange(5, 1000, 20),
-            'estimator__criterion': ['gini', 'entropy']
-        })
+        if self.RandomForest == True:
+            optimization_grid.append({
+                'preprocessor__numerical__scaler': [None],
+                'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
+                'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
+                'estimator': [RandomForestClassifier(random_state = self.random_state)],
+                'estimator__n_estimators': np.arange(5, 1000, 20),
+                'estimator__criterion': ['gini', 'entropy']
+            })
+        
+        # Linear SVM
+        if self.LinearSVC == True:
+            optimization_grid.append({
+                'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
+                'preprocessor__numerical__cleaner__strategy': ['mean','median'],
+                'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
+                'estimator': [LinearSVC(random_state = self.random_state)],
+                'estimator__C': np.arange(0.1, 1.1, 0.1),
+            })
 
         # Gradient boosting
-        optimization_grid.append({
-            'preprocessor__numerical__scaler': [None],
-            'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
-            'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
-            'estimator': [GradientBoostingClassifier(random_state = self.random_state)],
-            'estimator__n_estimators': np.arange(5, 1000, 20),
-            'estimator__learning_rate': np.linspace(0.01, 1.0, 30),
-        })
+        if self.GradientBoosting == True:
+            optimization_grid.append({
+                'preprocessor__numerical__scaler': [None],
+                'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
+                'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
+                'estimator': [GradientBoostingClassifier(random_state = self.random_state)],
+                'estimator__n_estimators': np.arange(5, 1000, 20),
+                'estimator__learning_rate': np.linspace(0.01, 1.0, 30),
+            })
         
         # XGBoost
-        optimization_grid.append({
-            'preprocessor__numerical__scaler': [None],
-            'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
-            'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
-            'estimator': [XGBClassifier(random_state = self.random_state)],
-            'estimator__n_estimators': np.arange(5, 1000, 20),
-            'estimator__learning_rate': np.linspace(0.01, 1.0, 30),
-        })
-
-        # Decision tree
-        optimization_grid.append({
-            'preprocessor__numerical__scaler': [None],
-            'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
-            'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
-            'estimator': [DecisionTreeClassifier(random_state = self.random_state)],
-            'estimator__criterion': ['gini', 'entropy']
-        })
-
-        # Linear SVM
-        optimization_grid.append({
-            'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
-            'preprocessor__numerical__cleaner__strategy': ['mean','median'],
-            'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
-            'estimator': [LinearSVC(random_state = self.random_state)],
-            'estimator__C': np.arange(0.1, 1.1, 0.1),
-
-        })
+        if self.XGB == True:
+            optimization_grid.append({
+                'preprocessor__numerical__scaler': [None],
+                'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
+                'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
+                'estimator': [XGBClassifier(random_state = self.random_state)],
+                'estimator__n_estimators': np.arange(5, 1000, 20),
+                'estimator__learning_rate': np.linspace(0.01, 1.0, 30),
+            })
         
         # Search the best estimator
         search = RandomizedSearchCV(
@@ -197,10 +206,8 @@ class AutoML_Classifier:
         '''
         report = classification_report(y, self.best_estimator_.predict(X), 
                                        target_names = labels)
-        
         plot_confusion_matrix(self.best_estimator_, X, y,
                               display_labels = labels, cmap = cmap)
-        
         return print(report)
     
     
@@ -211,13 +218,27 @@ class AutoML_Regressor:
     the number of iterations of parameters search (default = 50),
     a random_state parameter (default = 0) and a number of cross_validation 
     repeats (default = 5).
+    Set False for those algorithms you don't want to use.
     '''
-    def __init__(self, scoring_func = 'neg_mean_squared_error', n_iter = 50,
-                 random_state = 0, cv = 5):
+    def __init__(self, scoring_func = 'neg_mean_squared_error', 
+                 n_iter = 50, random_state = 0, cv = 5,
+                 LinearRegression = True, Lasso = True,
+                 Ridge = True, ElasticNet = True,
+                 RandomForest = True, SVR = True,
+                 GradientBoosting = True, XGB = True):
         self.scoring_func = scoring_func
         self.n_iter = n_iter
         self.random_state = random_state
         self.cv = cv
+        
+        self.LinearRegression = LinearRegression
+        self.Lasso = Lasso
+        self.Ridge = Ridge
+        self.ElasticNet = ElasticNet
+        self.SVR = SVR
+        self.RandomForest = RandomForest
+        self.GradientBoosting = GradientBoosting
+        self.XGB = XGB
         
     def fit(self, X, y):
         '''
@@ -262,80 +283,88 @@ class AutoML_Regressor:
         total_features = preprocessor.fit_transform(X_train).shape[1]
         optimization_grid = []
         
-        # ALGORITHMS
+        # ALGORITHMS SELECTION
         # Linear Regression
-        optimization_grid.append({
-            'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
-            'preprocessor__numerical__cleaner_strategy': ['mean', 'median'],
-            'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
-            'estimator': [LinearRegression()]
-        })
+        if self.LinearRegression == True:
+            optimization_grid.append({
+                'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
+                'preprocessor__numerical__cleaner_strategy': ['mean', 'median'],
+                'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
+                'estimator': [LinearRegression()]
+            })
         
         # Lasso (L1)
-        optimization_grid.append({
-            'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
-            'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
-            'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
-            'estimator': [Lasso(random_state = self.random_state)],
-            'estimator__alpha': np.arange(0.001, 1.01, 0.05)
-        })
+        if self.Lasso == True:
+            optimization_grid.append({
+                'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
+                'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
+                'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
+                'estimator': [Lasso(random_state = self.random_state)],
+                'estimator__alpha': np.arange(0.001, 1.01, 0.05)
+            })
 
         # Ridge (L2)
-        optimization_grid.append({
-            'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
-            'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
-            'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
-            'estimator': [Ridge(random_state = self.random_state)],
-            'estimator__alpha': np.arange(0.001, 1.01, 0.05)
-        })
+        if self.Ridge == True:
+            optimization_grid.append({
+                'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
+                'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
+                'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
+                'estimator': [Ridge(random_state = self.random_state)],
+                'estimator__alpha': np.arange(0.001, 1.01, 0.05)
+            })
         
-         # ElasticNet (L1+L2)
-        optimization_grid.append({
-            'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
-            'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
-            'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
-            'estimator': [ElasticNet(random_state = self.random_state)],
-            'estimator__alpha': np.arange(0.001, 1.01, 0.05)
-        })
-
+        # ElasticNet (L1+L2)
+        if self.ElasticNet == True:
+            optimization_grid.append({
+                'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
+                'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
+                'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
+                'estimator': [ElasticNet(random_state = self.random_state)],
+                'estimator__alpha': np.arange(0.001, 1.01, 0.05)
+            })
+        
+        # SVR
+        if self.SVR == True:
+            optimization_grid.append({
+                'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
+                'preprocessor__numerical__cleaner__strategy': ['mean','median'],
+                'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
+                'estimator': [SVR()],
+                'estimator__C': np.arange(0.1, 1.1, 0.1),
+            })
+        
         # Random Forest Regressor
-        optimization_grid.append({
-            'preprocessor__numerical__scaler': [None],
-            'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
-            'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
-            'estimator': [RandomForestRegressor(random_state = self.random_state)],
-            'estimator__n_estimators': np.arange(5, 1000, 20),
-            'estimator__criterion': ['gini', 'entropy']
-        })
+        if self.RandomForest == True:
+            optimization_grid.append({
+                'preprocessor__numerical__scaler': [None],
+                'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
+                'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
+                'estimator': [RandomForestRegressor(random_state = self.random_state)],
+                'estimator__n_estimators': np.arange(5, 1000, 20),
+                'estimator__criterion': ['gini', 'entropy']
+            })
 
         # Gradient boosting
-        optimization_grid.append({
-            'preprocessor__numerical__scaler': [None],
-            'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
-            'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
-            'estimator': [GradientBoostingRegressor(random_state = self.random_state)],
-            'estimator__n_estimators': np.arange(5, 1000, 20),
-            'estimator__learning_rate': np.linspace(0.01, 1.0, 30),
-        })
+        if self.GradientBoosting == True:
+            optimization_grid.append({
+                'preprocessor__numerical__scaler': [None],
+                'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
+                'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
+                'estimator': [GradientBoostingRegressor(random_state = self.random_state)],
+                'estimator__n_estimators': np.arange(5, 1000, 20),
+                'estimator__learning_rate': np.linspace(0.01, 1.0, 30),
+            })
 
         # XGBoost
-        optimization_grid.append({
-            'preprocessor__numerical__scaler': [None],
-            'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
-            'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
-            'estimator': [XGBRegressor(random_state = self.random_state)],
-            'estimator__n_estimators': np.arange(5, 1000, 20),
-            'estimator__learning_rate': np.linspace(0.01, 1.0, 30),
-        })
-
-        # SVR
-        optimization_grid.append({
-            'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
-            'preprocessor__numerical__cleaner__strategy': ['mean','median'],
-            'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
-            'estimator': [SVR()],
-            'estimator__C': np.arange(0.1, 1.1, 0.1),
-        })
+        if self.XGB == True:
+            optimization_grid.append({
+                'preprocessor__numerical__scaler': [None],
+                'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
+                'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
+                'estimator': [XGBRegressor(random_state = self.random_state)],
+                'estimator__n_estimators': np.arange(5, 1000, 20),
+                'estimator__learning_rate': np.linspace(0.01, 1.0, 30),
+            })
         
         # Search the best estimator
         search = RandomizedSearchCV(

@@ -1,9 +1,3 @@
-"""
-Created on Thu Apr 5 2021
-@author: Nordant
-"""
-
-# Necessary libraries
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
