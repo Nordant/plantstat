@@ -78,7 +78,7 @@ class_names = iris.target_names
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, 
                                                     random_state = 0)
 
-model = AutoML_Classifier()
+model = AutoML_Classifier(n_iter = 100)
 model.fit(X_train, y_train)
 
 # model.cv_results_
@@ -91,3 +91,28 @@ model.predict_proba(X_test)[:5]
 model.classification_report(X_test, y_test, labels = class_names, cmap = 'cividis')
 
 
+
+
+# AutoML_Regressor
+import pandas as pd
+from sklearn import datasets
+from sklearn.model_selection import train_test_split
+
+from plantstat import AutoML_Regressor
+
+X, y = datasets.load_boston(return_X_y = True)
+X = pd.DataFrame(X)
+
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, 
+                                                    random_state = 0)
+
+model = AutoML_Regressor(n_iter = 100)
+model.fit(X_train, y_train)
+
+# model.cv_results_
+# model.best_estimator_
+# model.best_pipeline
+
+model.predict(X_test)[:10]
+
+model.prediction_report(X_test, y_test)
