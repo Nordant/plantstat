@@ -1,6 +1,6 @@
 # PlantStat
 
-A package with a set of functions for fast and convenient statistical processing of experimental data. Designed for needs of the LPBPS (Laboratory of Physiology and Biochemistry of Plant Stress; Kharkiv, Ukraine).
+A package with a set of functions for fast and convenient statistical processing of experimental data. Also includes simple AutoML algorithms. Designed for needs of the LPBPS (Laboratory of Physiology and Biochemistry of Plant Stress; Kharkiv, Ukraine).
 
 The package is based on such basic packages as:
 
