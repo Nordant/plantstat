@@ -7,6 +7,11 @@ import pandas as pd
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 
+import plantstat
+print(plantstat.__description__)
+print(plantstat.__version__)
+print(plantstat.__author__)
+
 ################################################################
 ### -------------------------------------------------------- ###
 ### -------------------- Variable_Analyzer ----------------- ###
@@ -39,31 +44,36 @@ a.labels
 a.outliers()
 a.cleaned_data
 
-# Return boxplots for all variables
+# Return boxplots for all variables (with or without saving in local directory)
 a.boxplot()
+a.boxplot(save = True)
 
 # Variables' lengths
 a.var_len()
 
-# Data Frame with basic statistics
+# Data Frame with basic statistics (with or without saving in local directory)
 a.basic_stats()
+a.basic_stats(save = True)
 
-# Data Frame with statistics tests
+# Data Frame with statistics tests (with or without saving in local directory)
 a.var_compare()
+a.var_compare(save = True)
 
 # Pairs of variables
 a.get_pairs()
 a.get_pairs(indices = True)
 
-# Correlation matrix (with and without heatmap)
+# Correlation matrix (with and without heatmap) (with or without saving in local directory)
 a.corrs()
-a.corrs(method = 'pearson', heatmap = True)
+a.corrs(method = 'pearson', heatmap = True, save = True)
 
-# QQplots for all variables
+# QQplots for all variables (with or without saving in local directory)
 a.QQplot()
+a.QQplot(save = True)
 
-# Pairplot
+# Pairplot (with or without saving in local directory)
 a.pair_plot()
+a.pair_plot(save = True)
 
 
 ################################################################
@@ -94,10 +104,10 @@ model.fit(X_train, y_train)
 # model.best_estimator_
 # model.best_pipeline
 
-# Prediction and classification report
-model.predict(X_test)
+# Prediction and classification report (with prediction saving)
+model.predict(X_test, save = True)
 model.predict_proba(X_test)[:5]
-model.classification_report(X_test, y_test, labels = class_names, cmap = 'cividis')
+model.classification_report(X_test, y_test, labels = class_names, cmap = 'cividis', save = True, f_format = 'csv')
 
 # AutoML model without some algorithms
 model = AutoML_Classifier(n_iter = 100, XGB = False, GradientBoosting = False)
@@ -127,9 +137,9 @@ model.fit(X_train, y_train)
 # model.best_estimator_
 # model.best_pipeline
 
-# Predcition and report
-model.predict(X_test)[:10]
-model.prediction_report(X_test, y_test)
+# Predcition and report (with prediction saving)
+model.predict(X_test, save = True, f_format = 'csv')[:10]
+model.prediction_report(X_test, y_test, save = True)
 
 # AutoML model without some algorithms
 model = AutoML_Regressor(n_iter = 100, XGB = False, GradientBoosting = False)
