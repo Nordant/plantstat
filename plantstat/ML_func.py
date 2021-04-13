@@ -221,7 +221,7 @@ class AutoML_Classifier:
         Return: 
             the probabilities of classes.
         '''
-        preds = pd.DataFrame(self.best_estimator_.predict(X))
+        preds = pd.DataFrame(self.best_estimator_.predict_proba(X))
         if save == True and f_format == 'csv':
             preds.to_csv('preds.csv')
         elif save == True and f_format == 'excel':
