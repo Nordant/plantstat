@@ -9,7 +9,8 @@ import statsmodels.api as sm
 class Variable_Analyzer:
     '''
     Main class with all necessary functions.
-    Takes an array of variables and a list of classes.
+    Args:
+        an array of variables and a list of classes.
     '''
     def __init__(self, array, labels):
         self.array = array
@@ -27,9 +28,10 @@ class Variable_Analyzer:
     def stat(self, func):
         '''
         Function for calculation basic statistics.
-        As input takes any statistic function from numpy
-        or scipy packages.
-        Output - a list of values (one variable - one value).
+        Args:
+            any statistic function from numpy or scipy packages.
+        Return:
+            a list of values (one variable - one value).
         '''
         result = []
         for array in self.array:
@@ -39,10 +41,12 @@ class Variable_Analyzer:
     def outliers(self, central_measure = np.median, iqr_n = 1.5):
         '''
         Function for finding outliers.
-        As input takes central measure parameter (default median)
-        and iqr_n value (default 1.5).
-        Output - a dictionary of values (one variable - all outliers).
-        Also saves data without outliers to self.cleaned_data.
+        Args:
+            central measure parameter (default median)
+            iqr_n value (default 1.5).
+        Return:
+            a dictionary of values (one variable - all outliers).
+            Also saves data without outliers to self.cleaned_data.
         '''
         out = dict()
         cleaned = dict()
@@ -61,10 +65,12 @@ class Variable_Analyzer:
         self.cleaned_data = cleaned
         return out
     
-    def boxplot(self):
-        '''
-        Function for boxplot visualization.
-        Output - boxplots of all variables.
+    def boxplot(self, save = False):
+        '''Function for boxplot visualization.
+        Args:
+            set save True for saving all boxplots in local directory.        
+        Return:
+            boxplots of all variables.
         '''
         for idx, array in enumerate(self.array):
             fig, ax = plt.subplots(figsize = (4, 4), dpi = 100)
@@ -72,15 +78,21 @@ class Variable_Analyzer:
             sns.boxplot(y = array, color = 'gray', linewidth = 1.5)
             sns.swarmplot(y = array, color = 'blue', edgecolor = 'black', 
                           alpha = .9)
+            if save == True:
+                plt.savefig('Boxplot_{}.png'.format(self.labels[idx]), dpi = 200)
             plt.show()
-        
-    def basic_stats(self, p_value = True):
+            
+    def basic_stats(self, p_value = True, save = False, f_format = 'excel'):
         '''
         Function for various basic statistics.
-        Return p values of tests if p_value = True (default) and
-        values of statistics if False.
-        Output - a data frame with: mean, trim_mean, median, std, min and max,
-        iqr, and values of Shapiro test and normaltest.
+        Args:
+            if p_value = True (default) - returns p values of tests
+            if p_value = False - returns values of statistics.
+            save - whether to save the output in local directory or not.
+            f_format - format of data saving (if save = True): 'csv' or 'excel' (default)
+        Return: 
+            a data frame with: mean, trim_mean, median, std, min and max,
+            iqr, and values of Shapiro test and normaltest.
         '''
         stat_df = pd.DataFrame()
         if p_value == True:
@@ -109,18 +121,28 @@ class Variable_Analyzer:
             # from a normal distribution.
             # https://docs.scipy.org/doc/scipy/reference/generated/scipy.stats.normaltest.html#scipy.stats.normaltest
             stat_df.loc[idx, 'normtest_{}'.format(value)] = round(normaltest(array)[id_], 3)
-                    
+            
+        if save == True and f_format == 'csv':
+            stat_df.to_csv('basic_stats.csv')
+        elif save == True and f_format == 'excel':
+            stat_df.to_excel('basic_stats.xlsx', sheet_name = 'stats')
+        else:
+            pass
+            
         return stat_df
         
-    def var_compare(self, p_value = True):
+    def var_compare(self, p_value = True, save = False, f_format = 'excel'):
         '''
-        Function for variables comparisons.
-        Takes all variables and finds statistical tests for all pairs.
-        Return p values of tests if p_value = True (default) and
-        values of statistics if False.
-        Output - a data frame with values of Bartlet test, T-test, 
-        Wilcoxon test, Kruskal-Wallis H-test, Kolmogorov-Smirnov test, 
-        Mann-Whitney rank test.
+        Function for variables comparisons. Finds statistical tests for all pairs.
+        Args:
+            if p_value = True (default) - returns p values of tests
+            if p_value = False - returns values of statistics.
+            save - whether to save the output in local directory or not.
+            f_format - format of data saving (if save = True): 'csv' or 'excel' (default)
+        Return:
+            a data frame with values of Bartlet test, T-test, 
+            Wilcoxon test, Kruskal-Wallis H-test, Kolmogorov-Smirnov test, 
+            Mann-Whitney rank test.
         '''
         comp_df = pd.DataFrame()
         pairs = list(combinations(range(len(self.labels)), 2))
@@ -179,13 +201,23 @@ class Variable_Analyzer:
                 comp_df.loc[idx, 'mannwhitneyu_{}'.format(value)] = round(mannwhitneyu(first, second)[id_], 3)
             else:
                 comp_df.loc[idx, 'mannwhitneyu_{}'.format(value)] = np.NaN
-            
+        
+        if save == True and f_format == 'csv':
+            comp_df.to_csv('var_compare.csv')
+        elif save == True and f_format == 'excel':
+            comp_df.to_excel('var_compare.xlsx', sheet_name = 'var_compare')
+        else:
+            pass
+        
         return comp_df
     
     def get_pairs(self, indices = False):
         '''
-        Return a list of all pairs of variables.
-        Can return indices or labels' names.
+        Args:
+            indices = False (default) - return labels' names.
+            indices = True - return indices 
+        Return:
+            a list of all pairs of variables.
         '''
         if indices == False:
             p = list(combinations(self.labels, 2))
@@ -193,12 +225,17 @@ class Variable_Analyzer:
             p = list(combinations(range(len(self.labels)), 2))
         return p
             
-    def corrs(self, method = 'pearson', heatmap = False):
+    def corrs(self, method = 'pearson', heatmap = False, save = False,
+              f_format = 'excel'):
         '''
         Function for creating a corr matrix.
-        Takes all variables and calculates correlations.
-        Output - a data frame with corr coefficients.
-        Also returns a corr heatmap if 'heatmap = True'.
+        Args:
+            method - method of correlation calculation (default 'pearson')
+            heatmap - whether to plot corr heatmap or not
+            save - whether to save the output in local directory or not
+            f_format - format of data saving (if save = True): 'csv' or 'excel' (default)
+        Return:
+            a data frame with corr coefficients.
         '''
         df = pd.DataFrame.from_records(self.array).transpose()
         df.columns = self.labels
@@ -209,30 +246,49 @@ class Variable_Analyzer:
             heatmap = sns.heatmap(corrs, vmin = -1, vmax = 1, annot = True,
                                   cmap = "coolwarm")
             heatmap.set_title('Correlation Heatmap ({})'.format(method));
+            if save == True:
+                plt.savefig('Corr_Heatmap_({}).png'.format(method), dpi = 200)
             plt.show()
         else:
             pass
         
+        if save == True and f_format == 'csv':
+            corrs.to_csv('corrs.csv')
+        elif save == True and f_format == 'excel':
+            corrs.to_excel('corrs.xlsx', sheet_name = 'corrs')
+        else:
+            pass
         return corrs
     
-    def QQplot(self):
+    
+    def QQplot(self, save = False):
         '''
         Function for Q-Q plot visualization.
-        Returns Q-Q plots for each variable.
+        Args:
+            save - whether to save the output in local directory or not.
+        Return: 
+            Q-Q plots for each variable.
         '''
         for idx, array in enumerate(self.array):
             fig, ax = plt.subplots(figsize = (7, 5))
             plt.title('Q-Q plot ({})'.format(self.labels[idx]))
             sm.qqplot(np.array(array), line = '45', fit = True, ax = ax)
+            if save == True:
+                plt.savefig('Q-Q_plot_{}.png'.format(self.labels[idx]), dpi = 200)
             plt.show()
     
-    def pair_plot(self):
+    def pair_plot(self, save = False):
         '''
         Function for pairplot visualization.
-        Returns pairplots for all variables.
+        Args:
+            save - whether to save the output in local directory or not.
+        Return:
+            pairplots for all variables.
         '''
         df = pd.DataFrame.from_records(self.array).transpose()
         df.columns = self.labels
         sns.pairplot(df, corner = True)
+        if save == True:
+                plt.savefig('Pair_plot.png', dpi = 300)
         plt.show()
 

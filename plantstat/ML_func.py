@@ -1,4 +1,5 @@
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import statsmodels.api as sm
 
@@ -25,11 +26,12 @@ from sklearn.metrics import mean_absolute_error
 class AutoML_Classifier:
     '''
     AutoML algorithm for classification.
-    Takes parameters of the estimated metric (default = balanced_accuracy) 
-    the number of iterations of parameters search (default = 50),
-    a random_state parameter (default = 0) and a number of cross_validation 
-    repeats (default = 5).
-    Set False for those algorithms you don't want to use.
+    Args:
+        scoring_func - parameters of the estimated metric (default = balanced_accuracy) 
+        n_iter - the number of iterations of parameters search (default = 50)
+        random_state - a random_state parameter (default = 0) 
+        cv - a number of cross_validation repeats (default = 5).
+        Set False for those algorithms you don't want to use.
     '''
     def __init__(self, scoring_func = 'balanced_accuracy', 
                  n_iter = 50, random_state = 0, cv = 5,
@@ -52,11 +54,15 @@ class AutoML_Classifier:
         
     def fit(self, X, y):
         '''
-        Takes predictors in pd.DataFrame format and predicted variable. 
+        Args:
+            X - a data frame with predictors
+            y - predicted variable. 
         It selects an optimal machine learning algorithm and performs all 
         the data preprocessing necessary for this algorithm.
-        Returns best_estimator_ and best_params_ required for prediction,
-        and detailed cv results.
+        Return:
+            best_estimator_
+            best_params_ required for prediction,
+            detailed cv results.
         '''
         X_train = X
         y_train = y
@@ -186,39 +192,77 @@ class AutoML_Classifier:
         print('{} was used as the best algorithm!'.format(best_alg))
         
         
-    def predict(self, X, y = None):
+    def predict(self, X, y = None, save = False, f_format = 'excel'):
         '''
         Class prediction based on trained AutoML model.
-        Returns the numeric classes.
+        Args:
+            X - a data frame with test data
+            save - save prediction in local directory or not
+            f_format - format of data saving (if save = True): 'csv' or 'excel' (default)
+        Return:
+            the numeric classes.
         '''
+        preds = pd.DataFrame(self.best_estimator_.predict(X))
+        if save == True and f_format == 'csv':
+            preds.to_csv('preds.csv')
+        elif save == True and f_format == 'excel':
+            preds.to_excel('preds.xlsx', sheet_name = 'preds')
+        else:
+            pass
         return self.best_estimator_.predict(X)
     
-    def predict_proba(self, X, y = None):
+    def predict_proba(self, X, y = None, save = False, f_format = 'excel'):
         '''
         Class prediction based on trained AutoML model.
-        Returns the probabilities.
+        Args:
+            X - a data frame with test data
+            save - save prediction in local directory or not
+            f_format - format of data saving (if save = True): 'csv' or 'excel' (default)
+        Return: 
+            the probabilities of classes.
         '''
+        preds = pd.DataFrame(self.best_estimator_.predict(X))
+        if save == True and f_format == 'csv':
+            preds.to_csv('preds.csv')
+        elif save == True and f_format == 'excel':
+            preds.to_excel('preds.xlsx', sheet_name = 'preds')
+        else:
+            pass
         return self.best_estimator_.predict_proba(X)
     
-    def classification_report(self, X, y, labels = None, cmap = 'inferno'):
+    def classification_report(self, X, y, labels = None, cmap = 'inferno',
+                              save = False):
         '''
         Prediction classification report.
+        Args:
+            X - a data frame with predictors
+            y - predicted variable.
+            labels - a list of labels
+            cmap - color map
+            save - whether to save the output plot in local directory or not
+        Return:
+            plots
+            classification_report
         '''
         report = classification_report(y, self.best_estimator_.predict(X), 
                                        target_names = labels)
         plot_confusion_matrix(self.best_estimator_, X, y,
                               display_labels = labels, cmap = cmap)
+        if save == True:
+            plt.savefig('Preds_Heatmap.png', dpi = 200)
+        plt.show()
         return print(report)
     
     
 class AutoML_Regressor:
     '''
     AutoML algorithm for regression.
-    Takes parameters of the estimated metric (default = neg_mean_squared_error) 
-    the number of iterations of parameters search (default = 50),
-    a random_state parameter (default = 0) and a number of cross_validation 
-    repeats (default = 5).
-    Set False for those algorithms you don't want to use.
+    Args:
+        scoring_func - parameters of the estimated metric (default = neg_mean_squared_error) 
+        n_iter - the number of iterations of parameters search (default = 50)
+        random_state - a random_state parameter (default = 0) 
+        cv - a number of cross_validation repeats (default = 5).
+        Set False for those algorithms you don't want to use.
     '''
     def __init__(self, scoring_func = 'neg_mean_squared_error', 
                  n_iter = 50, random_state = 0, cv = 5,
@@ -242,11 +286,15 @@ class AutoML_Regressor:
         
     def fit(self, X, y):
         '''
-        Takes predictors in pd.DataFrame format and predicted variable. 
+        Args:
+            X - a data frame with predictors
+            y - predicted variable. 
         It selects an optimal machine learning algorithm and performs all 
         the data preprocessing necessary for this algorithm.
-        Returns best_estimator_ and best_params_ required for prediction,
-        and detailed cv results.
+        Return:
+            best_estimator_
+            best_params_ required for prediction,
+            detailed cv results.
         '''
         X_train = X
         y_train = y
@@ -388,18 +436,37 @@ class AutoML_Regressor:
         print('{} was used as the best algorithm!'.format(best_alg))
         
         
-    def predict(self, X, y = None):
+    def predict(self, X, y = None, save = False, f_format = 'excel'):
         '''
-        Prediction based on trained AutoML_Regression model.
-        Returns the numeric values.
+        Prediction based on trained AutoML model.
+        Args:
+            X - a data frame with test data
+            save - save prediction in local directory or not
+            f_format - format of data saving (if save = True): 'csv' or 'excel' (default)
+        Return:
+            the numeric classes.
         '''
+        preds = pd.DataFrame(self.best_estimator_.predict(X))
+        if save == True and f_format == 'csv':
+            preds.to_csv('preds.csv')
+        elif save == True and f_format == 'excel':
+            preds.to_excel('preds.xlsx', sheet_name = 'preds')
+        else:
+            pass
         return self.best_estimator_.predict(X)
 
     
-    def prediction_report(self, X, y, metric = mean_absolute_error):
+    def prediction_report(self, X, y, metric = mean_absolute_error, save = False):
         '''
         Prediction report with metric score and two plots.
-        Takes test data and metric function (from sklearn package).
+        Args:
+            X - test data
+            y - true values
+            metric function (from sklearn package, default = mean_absolute_error)
+            save - whether to save the output plots in local directory or not
+        Return:
+            plots
+            Prediction score
         '''
         import matplotlib.lines as mlines
         preds = self.best_estimator_.predict(X)
@@ -413,6 +480,8 @@ class AutoML_Regressor:
         ax.add_line(line)
         plt.xlabel('True values')
         plt.ylabel('Predicted values')
+        if save == True:
+            plt.savefig('Preds_values.png', dpi = 200)
         plt.show()
     
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize = (12, 7), dpi = 100)
@@ -423,6 +492,8 @@ class AutoML_Regressor:
         
         ax2.set_title('Residuals (QQplot)')
         sm.qqplot(preds, line = '45', fit = True, ax = ax2)
+        if save == True:
+            plt.savefig('Residuals.png', dpi = 200)
         plt.show()
         
         return print('Prediction score ({}): {}'.format(str(metric.__name__), 
