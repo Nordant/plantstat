@@ -106,8 +106,8 @@ model.fit(X_train, y_train)
 
 # Prediction and classification report (with prediction saving)
 model.predict(X_test, save = True)
-model.predict_proba(X_test)[:5]
-model.classification_report(X_test, y_test, labels = class_names, cmap = 'cividis', save = True, f_format = 'csv')
+model.predict_proba(X_test, save = True, f_format = 'csv')[:5]
+model.classification_report(X_test, y_test, labels = class_names, cmap = 'cividis', save = True)
 
 # AutoML model without some algorithms
 model = AutoML_Classifier(n_iter = 100, XGB = False, GradientBoosting = False)
@@ -138,7 +138,7 @@ model.fit(X_train, y_train)
 # model.best_pipeline
 
 # Predcition and report (with prediction saving)
-model.predict(X_test, save = True, f_format = 'csv')[:10]
+model.predict(X_test, save = True)[:10]
 model.prediction_report(X_test, y_test, save = True)
 
 # AutoML model without some algorithms
