@@ -15,7 +15,9 @@ The package is based on such basic packages as:
 `pip install git+https://github.com/Nordant/plantstat.git#egg=plantstat`
 
 ## PlantStat package on Kaggle:
-[https://www.kaggle.com/maksymshkliarevskyi/plantstat-package-statistics-and-automl](https://www.kaggle.com/maksymshkliarevskyi/plantstat-package-statistics-and-automl)
+[Package](https://www.kaggle.com/maksymshkliarevskyi/plantstat-package-statistics-and-automl)
+
+[Notebook (PlantStat package: quick overview of possibilities)](https://www.kaggle.com/maksymshkliarevskyi/plantstat-package-quick-overview-of-possibilities)
 
 ## AutoML algorithms:
 | AutoML_Classifier | AutoML_Regressor |
