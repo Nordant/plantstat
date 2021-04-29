@@ -20,16 +20,16 @@ The package is based on such basic packages as:
 [Notebook (PlantStat package: quick overview of possibilities)](https://www.kaggle.com/maksymshkliarevskyi/plantstat-package-quick-overview-of-possibilities)
 
 ## AutoML algorithms:
-| AutoML_Classifier | AutoML_Regressor |
-| --- | --- |
-| LogisticRegression | LinearRegression |
-| LinearSVC | Ridge |
-| KNN | Lasso |
-| DecisionTree | ElasticNet |
-| RandomForest | RandomForest |
-| GradientBoosting | GradientBoosting |
-| XGB | XGB |
-|  | SVR |
+| AutoML_Classifier | AutoML_Regressor | Clusterer |
+| --- | --- | --- |
+| LogisticRegression | LinearRegression | KMeans |
+| LinearSVC | Ridge | DBSCAN |
+| KNN | Lasso | |
+| DecisionTree | ElasticNet | |
+| RandomForest | RandomForest | |
+| GradientBoosting | GradientBoosting | |
+| XGB | XGB | |
+|  | SVR | |
 
 ## Examples:
 - Variable_Analyzer - the main class for statistical data processing.
@@ -94,4 +94,45 @@ model.prediction_report(X_test, y_test, save = True)
 model = AutoML_Regressor(n_iter = 100, XGB = False, GradientBoosting = False)
 model.fit(X_train, y_train)
 model.prediction_report(X_test, y_test)
+```
+
+- Clusterer - the main class for regression.
+```python
+from plantstat import Clusterer
+from plantstat.data_generators import ClusterData
+
+# Create syntetic data with 5 features, 1000 samples and 4 clusters
+data_gen = ClusterData(n_features = 5, n_samples = 1000, cluster_std = 1.2,
+                       centers_range = (4, 5), random_state = 0)
+X = pd.DataFrame(data_gen.generate())
+
+# Create K-means model for clustering (the model includes PCA with 2 components)
+kmeans = Clusterer(is_pca = True, clusterer = 'kmeans')
+kmeans.fit(X, save = True)
+
+# Score values for various number of clusters
+kmeans.scores
+
+# Preprocessed data (after scaling and PCA)
+kmeans.X
+
+# Prediction (basis on fit results)
+preds = kmeans.predict(k = 4, save = True)
+
+# The real number of labels
+print('Unique labels: %i' %len(np.unique(data_gen.labels)))
+
+
+# Create DBSCAN model for clustering (the model includes PCA with 2 components)
+dbscan = Clusterer(is_pca = True, clusterer = 'DBSCAN')
+dbscan.fit(X, save = True)
+
+# Score values for various eps values
+dbscan.scores
+
+# Preprocessed data (after scaling and PCA)
+dbscan.X
+
+# Prediction (basis on fit results)
+preds = dbscan.predict(eps = 0.36, save = True)
 ```
