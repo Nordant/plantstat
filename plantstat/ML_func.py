@@ -1,6 +1,7 @@
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns
 import statsmodels.api as sm
 
 from sklearn.impute import SimpleImputer
@@ -19,8 +20,11 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import LinearSVC, SVR
 from xgboost import XGBClassifier, XGBRegressor
 
+from sklearn.cluster import KMeans, DBSCAN
+from sklearn.decomposition import PCA
+
 from sklearn.metrics import balanced_accuracy_score, classification_report, plot_confusion_matrix
-from sklearn.metrics import mean_absolute_error
+from sklearn.metrics import mean_absolute_error, silhouette_score
 
 
 class AutoML_Classifier:
@@ -498,4 +502,175 @@ class AutoML_Regressor:
         
         return print('Prediction score ({}): {}'.format(str(metric.__name__), 
                                                         metric(y, preds)))
-    
+
+
+class Clusterer:
+    '''
+    Unsupervised clustering algorithm.
+    Args:
+        clusterer - 'kmeans' (default) or 'DBSCAN'
+        is_pca - if True, features will be transform with PCA (default = False)
+        n_pca_comp - the number of components for PCA (if 'is_pca' = True) (default = 2)
+        centroids_range - the range of centroids (K-means method) that the algorithm will work with (default = (2, 11))
+        eps_range - the range of epsilons (DBSCAN method) that the algorithm will work with (default = (0.01, 1.01))
+        random_state - a random_state parameter (default = 0)
+    '''
+    def __init__(self, clusterer = 'kmeans', is_pca = False, n_pca_comp = 2,
+                 centroids_range = (2, 11), eps_range = (0.01, 1.01),
+                 random_state = 0):
+        self.clusterer = clusterer
+        self.is_pca = is_pca
+        self.pca_comp = n_pca_comp
+        self.centroids_range = centroids_range
+        self.eps_range = eps_range
+        self.random_state = random_state
+        
+    def fit(self, X, save = False, f_format = 'excel'):
+        '''
+        Args:
+            X - a data frame with features.
+            save - save fit scores data and plots in local directory or not
+            f_format - format of data saving (if save = True): 'csv' or 'excel' (default)
+        Performs the data preprocessing and сalculates the quality of the model for a given range of parameters.
+        Return:
+            self.X - preprocessed input data (after scaling and PCA (if 'is_pca' = True))
+            self.scores - quality values for all models
+            a visualization of model quality changes
+        '''
+        if X.isnull().sum().sum() > 0:
+            X = X.dropna()
+            print('Data has NaN values! Some rows were dropped!')
+            
+        # Preprocessing
+        if self.is_pca == True:
+            preprocessor = Pipeline([('scaler', StandardScaler()),
+                                     ('PCA', PCA(n_components = self.pca_comp, 
+                                                 random_state = self.random_state))])
+        else:
+            preprocessor = Pipeline([('scaler', StandardScaler())])
+        self.X = preprocessor.fit_transform(X)
+        
+        if self.clusterer == 'kmeans':
+            print('Using KMeans...')
+            K = range(self.centroids_range[0], self.centroids_range[1])
+            scores = pd.DataFrame({'k': K,
+                                   'score': np.zeros(len(K))})
+            for idx, k in enumerate(scores.k):
+                kmeans = KMeans(init = 'k-means++', n_clusters = k,
+                                n_init = 50, max_iter = 500,
+                                random_state = self.random_state)
+                kmeans.fit(self.X)
+                scores.iloc[idx, 1] += kmeans.inertia_
+            self.scores = scores
+            print('Done!')
+            
+            plt.style.use("fivethirtyeight")
+            plt.figure(figsize = (12, 5), dpi = 100)
+            plt.plot(scores.k, scores.score)
+            plt.xticks(scores.k)
+            plt.xlabel("Number of Clusters")
+            plt.ylabel("Sum of squared distances")
+            
+            if save == True:
+                plt.savefig('KMeans_SSD.png', dpi = 200, bbox_inches = "tight")
+            plt.show()
+        else:
+            print('Using DBSCAN...')
+            eps = np.arange(self.eps_range[0], self.eps_range[1], 0.01)
+            scores = pd.DataFrame({'eps': eps,
+                                   'score': np.zeros(len(eps))})
+            for idx, e in enumerate(scores.eps):
+                dbscan = DBSCAN(eps = e)
+                dbscan.fit(self.X)
+                try:
+                    scores.iloc[idx, 1] += silhouette_score(self.X, dbscan.labels_)
+                except ValueError:
+                    pass
+            self.scores = scores
+            print('Done!')
+            
+            plt.style.use("fivethirtyeight")
+            plt.figure(figsize = (12, 5), dpi = 100)
+            plt.plot(scores.eps, scores.score)
+            plt.xticks(np.arange(self.eps_range[0], self.eps_range[1],
+                                 (self.eps_range[1] - self.eps_range[0]) / 10))
+            plt.xlabel("Number of Clusters")
+            plt.ylabel("Silhouette Coefficient")
+            
+            if save == True:
+                plt.savefig('DBSCAN_SC.png', dpi = 200, bbox_inches = "tight")
+            plt.show()
+            
+        if save == True and f_format == 'csv':
+            pd.DataFrame(self.X).to_csv('X.csv')
+            self.scores.to_csv('scores.csv')
+        elif save == True and f_format == 'excel':
+            pd.DataFrame(self.X).to_excel('X.xlsx', sheet_name = 'X')
+            self.scores.to_excel('scores.xlsx', sheet_name = 'scores')
+        else:
+            pass
+        
+    def predict(self, k = None, eps = None, min_samples = 5, 
+                save = False, f_format = 'excel'):
+        '''
+        Class prediction.
+        Args:
+            k - the number of K (for K-means)
+            eps - epsilon parameter (for DBSCAN)
+            min_samples - the number of samples in a neighborhood for a point (for DBSCAN) (default = 5)
+            save - save prediction in local directory or not
+            f_format - format of data saving (if save = True): 'csv' or 'excel' (default)
+        Return:
+            the numeric classes
+            if 'is_pca' = True or the number of features = 2, also return plot with labeled data
+        '''
+        if self.clusterer == 'kmeans':
+            print('Using KMeans...')
+            kmeans = KMeans(init = 'k-means++', n_clusters = k,
+                            n_init = 50, max_iter = 500,
+                            random_state = self.random_state)
+            kmeans.fit(self.X)
+            print('Done!')
+            if self.is_pca == True or self.X.shape[1] == 2:
+                plt.style.use("fivethirtyeight")
+                plt.figure(figsize = (5, 5), dpi = 100)
+                sns.scatterplot(self.X[:, 0], self.X[:, 1], 
+                                hue = kmeans.labels_, palette = 'plasma')
+                if save == True:
+                    plt.savefig('KMeans_clusters.png', dpi = 200, 
+                                bbox_inches = "tight")
+                plt.show()
+            
+            if save == True and f_format == 'csv':
+                pd.DataFrame(kmeans.labels_).to_csv('kmeans_labels.csv')
+            elif save == True and f_format == 'excel':
+                pd.DataFrame(kmeans.labels_).to_excel('kmeans_labels.xlsx', 
+                                                      sheet_name = 'kmeans_labels')
+            else:
+                pass
+            
+            return kmeans.labels_
+        else:
+            print('Using DBSCAN...')
+            dbscan = DBSCAN(eps = eps, min_samples = min_samples)
+            dbscan.fit(self.X)
+            print('Done!')
+            if self.is_pca == True or self.X.shape[1] == 2:
+                plt.style.use("fivethirtyeight")
+                plt.figure(figsize = (5, 5), dpi = 100)
+                sns.scatterplot(self.X[:, 0], self.X[:, 1], 
+                                hue = dbscan.labels_, palette = 'plasma')
+                if save == True:
+                    plt.savefig('DBSCAN_clusters.png', dpi = 200,
+                                bbox_inches = "tight")
+                plt.show()
+            
+            if save == True and f_format == 'csv':
+                pd.DataFrame(dbscan.labels_).to_csv('dbscan_labels.csv')
+            elif save == True and f_format == 'excel':
+                pd.DataFrame(dbscan.labels_).to_excel('dbscan_labels.xlsx', 
+                                                      sheet_name = 'dbscan_labels')
+            else:
+                pass
+            
+            return dbscan.labels_
