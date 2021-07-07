@@ -12,6 +12,6 @@ setup(name = 'PlantStat',
       keywords = ['python', 'statistics', 'automl'],
       zip_safe = False,
       install_requires=['pandas', 'numpy', 'matplotlib', 'scipy', 'scikit-learn', 'seaborn',
-                        'statsmodels', 'torch', 'torchvision', 'googledrivedownloader', 'opencv'],
+                        'statsmodels', 'torch', 'torchvision', 'googledrivedownloader', 'opencv-python'],
       python_requires='>=3',      
       packages = find_packages())
