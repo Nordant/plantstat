@@ -1,15 +1,6 @@
 # PlantStat
 
-A package with a set of functions for fast and convenient statistical processing of experimental data. Also includes simple AutoML algorithms for classification and regression. Designed for needs of the LPBPS (Laboratory of Physiology and Biochemistry of Plant Stress; Kharkiv, Ukraine).
-
-The package is based on such basic packages as:
-
-- [numpy](https://numpy.org/)
-- [pandas](https://pandas.pydata.org/)
-- [matplotlib](https://matplotlib.org/)
-- [scikit-learn](https://scikit-learn.org/stable/)
-- [scipy](https://docs.scipy.org/doc/scipy/reference/index.html)
-- [statsmodels](https://www.statsmodels.org/stable/index.html)
+A package with a set of functions for fast and convenient statistical processing of experimental data. Also includes simple AutoML algorithms for classification and regression, and CV of microscopic images. Designed for needs of the LPBPS (Laboratory of Physiology and Biochemistry of Plant Stress; Kharkiv, Ukraine).
 
 ## Installing from the source:
 `pip install git+https://github.com/Nordant/plantstat.git#egg=plantstat`
@@ -135,4 +126,20 @@ dbscan.X
 
 # Prediction (basis on fit results)
 preds = dbscan.predict(eps = 0.36, save = True)
+```
+
+- OpenStomataPredictor - the main class for stomata open/close classes prediction.
+```python
+from plantstat.vision.stomata_vision import OpenStomataPredictor
+
+predictor = OpenStomataPredictor('PATH', 16)
+
+predictor.predict(save = True)
+predictor.visualize(save = True)
+
+predictor.report_
+
+predictor.test_img_paths_
+predictor.test_preds_
+predictor.test_classes_
 ```
