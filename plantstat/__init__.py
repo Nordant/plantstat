@@ -4,3 +4,4 @@ __author__ = 'Maksym Shkliarevskyi (maksym.shkliarevskyi@gmail.com)'
 
 from .stat_func import Variable_Analyzer
 from .ML_func import AutoML_Classifier, AutoML_Regressor, Clusterer
+from .vision import OpenStomataPredictor, set_seed, dataloader
