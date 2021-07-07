@@ -189,3 +189,27 @@ dbscan.X
 
 # Prediction (basis on fit results)
 preds = dbscan.predict(eps = 0.36, save = True)
+
+
+
+################################################################
+### -------------------------------------------------------- ###
+### ------------------------- vision ----------------------- ###
+### -------------------------------------------------------- ###
+################################################################
+### -------------------------------------------------------- ###
+### ------------------ OpenStomataPredictor ---------------- ###
+### -------------------------------------------------------- ###
+################################################################
+from plantstat.vision.stomata_vision import OpenStomataPredictor
+
+predictor = OpenStomataPredictor('PATH', 16)
+
+predictor.predict(save = True)
+predictor.visualize(save = True)
+
+predictor.report_
+
+predictor.test_img_paths_
+predictor.test_preds_
+predictor.test_classes_
