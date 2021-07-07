@@ -1,1 +1,1 @@
-from plantstat.vision.stomata_vision import OpenStomataPredictor, set_seed, dataloader
+from .stomata_vision import OpenStomataPredictor, set_seed, dataloader
