@@ -87,7 +87,7 @@ model.fit(X_train, y_train)
 model.prediction_report(X_test, y_test)
 ```
 
-- Clusterer - the main class for regression.
+- Clusterer - the main class for clustering.
 ```python
 from plantstat import Clusterer
 from plantstat.data_generators import ClusterData
