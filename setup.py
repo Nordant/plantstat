@@ -13,7 +13,6 @@ setup(name = 'PlantStat',
       zip_safe = False,
       install_requires=['pandas', 'numpy', 'matplotlib', 'scipy', 'scikit-learn', 'seaborn',
                         'statsmodels', 'torch', 'torchvision', 'googledrivedownloader', 
-                        'opencv-python', 'xgboost', 'tqdm', 'os',
-                        'glob', 'random', 'itertools'],
+                        'opencv-python', 'xgboost', 'tqdm', 'itertools'],
       python_requires='>=3',      
       packages = find_packages())
