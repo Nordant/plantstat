@@ -1,5 +1,4 @@
 from setuptools import setup
-import plantstat
 
 setup(name = 'PlantStat',
       version = '0.3.0',
@@ -11,4 +10,5 @@ setup(name = 'PlantStat',
       license = 'Apache License 2.0',
       packages = ['plantstat'],
       keywords = ['python', 'statistics', 'automl'],
-      zip_safe = False)
+      zip_safe = False,
+      include_package_data = True)
