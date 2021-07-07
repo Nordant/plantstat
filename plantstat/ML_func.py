@@ -342,7 +342,7 @@ class AutoML_Regressor:
                 'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
                 'preprocessor__numerical__cleaner_strategy': ['mean', 'median'],
                 'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
-                'estimator': [LinearRegression()]
+                'estimator': [LinearRegression()],
             })
         
         # Lasso (L1)
@@ -352,7 +352,7 @@ class AutoML_Regressor:
                 'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
                 'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
                 'estimator': [Lasso(random_state = self.random_state)],
-                'estimator__alpha': np.arange(0.001, 1.01, 0.05)
+                'estimator__alpha': np.arange(0.001, 1.01, 0.05),
             })
 
         # Ridge (L2)
@@ -362,7 +362,7 @@ class AutoML_Regressor:
                 'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
                 'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
                 'estimator': [Ridge(random_state = self.random_state)],
-                'estimator__alpha': np.arange(0.001, 1.01, 0.05)
+                'estimator__alpha': np.arange(0.001, 1.01, 0.05),
             })
         
         # ElasticNet (L1+L2)
@@ -372,7 +372,8 @@ class AutoML_Regressor:
                 'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
                 'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
                 'estimator': [ElasticNet(random_state = self.random_state)],
-                'estimator__alpha': np.arange(0.001, 1.01, 0.05)
+                'estimator__alpha': np.arange(0.001, 1.01, 0.05),
+                'estimator__l1_ratio': np.arange(0.0, 1.01, 0.2),
             })
         
         # SVR
@@ -382,7 +383,9 @@ class AutoML_Regressor:
                 'preprocessor__numerical__cleaner__strategy': ['mean','median'],
                 'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
                 'estimator': [SVR()],
-                'estimator__C': np.arange(0.1, 1.1, 0.1),
+                'estimator__C': np.concatenate([np.arange(0.1, 1.1, 0.1), 
+                                                np.arange(10, 101, 10)]),
+                'estimator__epsilon': np.array([0.01, 0.1, 1]),
             })
         
         # Random Forest Regressor
@@ -393,7 +396,8 @@ class AutoML_Regressor:
                 'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
                 'estimator': [RandomForestRegressor(random_state = self.random_state)],
                 'estimator__n_estimators': np.arange(5, 1000, 20),
-                'estimator__criterion': ['gini', 'entropy']
+                'estimator__criterion': ['gini', 'entropy'],
+                'estimator__max_features': ['auto', 'sqrt', 'log2'],
             })
 
         # Gradient boosting
@@ -405,6 +409,9 @@ class AutoML_Regressor:
                 'estimator': [GradientBoostingRegressor(random_state = self.random_state)],
                 'estimator__n_estimators': np.arange(5, 1000, 20),
                 'estimator__learning_rate': np.linspace(0.01, 1.0, 30),
+                'estimator__subsample': np.arange(0.5, 1.01, 0.1),
+                'estimator__max_depth': np.arange(2, 11, 1),
+                'estimator__max_features': ['auto', 'sqrt', 'log2'],
             })
 
         # XGBoost
@@ -414,8 +421,13 @@ class AutoML_Regressor:
                 'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
                 'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
                 'estimator': [XGBRegressor(random_state = self.random_state)],
-                'estimator__n_estimators': np.arange(5, 1000, 20),
-                'estimator__learning_rate': np.linspace(0.01, 1.0, 30),
+                'estimator__n_estimators': np.arange(50, 1001, 50),
+                'estimator__learning_rate': np.linspace(0.01, 1, 100),
+                'estimator__subsample': np.arange(0.5, 1.01, 0.1),
+                'estimator__max_depth': np.arange(2, 11, 1),
+                'estimator__colsample_bytree': np.arange(0.4, 1.01, 0.1),
+                'estimator__reg_alpha': np.arange(0, 1.01, 0.1),
+                'estimator__reg_lambda': np.arange(0, 1.01, 0.1),
             })
         
         # Search the best estimator

@@ -1,4 +1,4 @@
-__version__ = '0.2.0'
+__version__ = '0.3.0'
 __description__ = 'Package for main statistics and AutoML in plant sciences'
 __author__ = 'Maksym Shkliarevskyi (maksym.shkliarevskyi@gmail.com)'
 
