@@ -15,7 +15,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.linear_model import LinearRegression, Lasso, Ridge, ElasticNet
 from sklearn.ensemble import RandomForestClassifier, GradientBoostingClassifier
 from sklearn.ensemble import RandomForestRegressor, GradientBoostingRegressor
-from sklearn.neighbors import KNeighborsClassifier
+from sklearn.neighbors import KNeighborsClassifier, NearestNeighbors
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.svm import LinearSVC, SVR
 from xgboost import XGBClassifier, XGBRegressor
@@ -686,3 +686,82 @@ class Clusterer:
                 pass
             
             return dbscan.labels_
+
+
+class KNN:
+    '''
+    Nearest Neighbors algorithm for the similarity finding.
+    Args:
+        n_neighbors - Number of neighbors to use (default - 2)
+        missing_values - approach to missing values: "fill_zero" (default) or "drop"
+    '''
+    def __init__(self, n_neighbors = 2, missing_values = 'fill_zero'):
+        assert missing_values in {'fill_zero'}
+        self.n_neighbors = n_neighbors
+        self.missing_values = missing_values
+        
+    def fit(self, X, save = False):
+        '''
+        Args:
+            X - a data frame
+            save - save results in the local directory or not
+        Return:
+            self_distances_
+            self_indices_
+            model_
+            fit_data_
+        '''
+        if X.isnull().sum().sum() > 0:
+            if self.missing_values == 'fill_zero':            
+                X = X.fillna(0)
+                print('Data has missing values! Some values were filled by 0!')
+            else:
+                raise ValueError("Data has missing values!")
+        
+        model = NearestNeighbors(n_neighbors = self.n_neighbors).fit(X)
+        self_distances, self_indices = model.kneighbors(X)
+        self.self_distances_ = self_distances
+        self.self_indices_ = self_indices
+        self.model_ = model
+        self.all_data_ = X
+        
+        if save == True:
+            writer = pd.ExcelWriter('Self_NearestNeighbors.xlsx', engine = 'xlsxwriter')
+            
+            self.all_data_.to_excel(writer, sheet_name = 'data')
+            pd.DataFrame(self.self_indices_).to_excel(writer, sheet_name = 'indices')
+            pd.DataFrame(self.self_distances_).to_excel(writer, sheet_name = 'distances')
+            pd.DataFrame(self.model_.kneighbors_graph(X).toarray()).to_excel(writer, sheet_name = 'graph')
+            
+            writer.save()
+        else:
+            pass
+        
+    def find_neighbors(self, X, missing_values = 'fill_zero', save = False):
+        '''
+        Find nearest neighbors for the subset.
+        Args:
+            X - a data frame
+            save - save results in the local directory or not
+        Return:
+            an array with neighbors' indices.
+        '''
+        if X.isnull().sum().sum() > 0:
+            raise ValueError("Data has missing values!")
+
+        self.distances, self.indices = self.model_.kneighbors(X)
+        
+        if save == True:
+            writer = pd.ExcelWriter('NearestNeighbors.xlsx', engine = 'xlsxwriter')
+            
+            self.all_data_.to_excel(writer, sheet_name = 'all_data')
+            X.to_excel(writer, sheet_name = 'subset_data')
+            pd.DataFrame(self.indices).to_excel(writer, sheet_name = 'indices')
+            pd.DataFrame(self.distances).to_excel(writer, sheet_name = 'distances')
+            pd.DataFrame(self.model_.kneighbors_graph(X).toarray()).to_excel(writer, sheet_name = 'graph')
+            
+            writer.save()
+        else:
+            pass
+        
+        return self.indices
