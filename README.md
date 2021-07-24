@@ -11,16 +11,16 @@ A package with a set of functions for fast and convenient statistical processing
 [Notebook (PlantStat package: quick overview of possibilities)](https://www.kaggle.com/maksymshkliarevskyi/plantstat-package-quick-overview-of-possibilities)
 
 ## AutoML algorithms:
-| AutoML_Classifier | AutoML_Regressor | Clusterer |
-| --- | --- | --- |
-| LogisticRegression | LinearRegression | KMeans |
-| LinearSVC | Ridge | DBSCAN |
-| KNN | Lasso | |
-| DecisionTree | ElasticNet | |
-| RandomForest | RandomForest | |
-| GradientBoosting | GradientBoosting | |
-| XGB | XGB | |
-|  | SVR | |
+| AutoML_Classifier | AutoML_Regressor | Clusterer | KNN |
+| --- | --- | --- | --- |
+| LogisticRegression | LinearRegression | KMeans | NearestNeighbors |
+| LinearSVC | Ridge | DBSCAN | |
+| KNN | Lasso | | |
+| DecisionTree | ElasticNet | | |
+| RandomForest | RandomForest | | |
+| GradientBoosting | GradientBoosting | | |
+| XGB | XGB | | |
+|  | SVR | | |
 
 ## Examples:
 - Variable_Analyzer - the main class for statistical data processing.
@@ -128,11 +128,36 @@ dbscan.X
 preds = dbscan.predict(eps = 0.36, save = True)
 ```
 
+- KNN - the main class for Nearest Neighbors similarity finding.
+```python
+import pandas as pd
+from sklearn.datasets import load_iris
+iris = pd.DataFrame(load_iris().data)
+
+from plantstat import KNN
+
+# Create and fit KNN with 5 neighbors
+nn = KNN(5)
+nn.fit(iris, save = True)
+
+# Find neighbors for data subset
+nn.find_neighbors(iris.iloc[:10, :], save = True)
+
+# all kinds of data in the class
+# nn.self_distances_
+# nn.self_indices_
+# nn.model_
+# nn.all_data_
+
+# nn.distances
+# nn.indices
+```
+
 - OpenStomataPredictor - the main class for stomata open/close classes prediction.
 ```python
 from plantstat.vision.stomata_vision import OpenStomataPredictor
 
-predictor = OpenStomataPredictor('PATH', 16)
+predictor = OpenStomataPredictor('PATH', batch_size = 16)
 
 predictor.predict(save = True)
 predictor.visualize(save = True)
