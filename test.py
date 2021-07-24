@@ -194,6 +194,36 @@ preds = dbscan.predict(eps = 0.36, save = True)
 
 ################################################################
 ### -------------------------------------------------------- ###
+### --------------------------- KNN ------------------------ ###
+### -------------------------------------------------------- ###
+################################################################
+import pandas as pd
+from sklearn.datasets import load_iris
+iris = pd.DataFrame(load_iris().data)
+
+from plantstat import KNN
+
+# Create and fit KNN with 5 neighbors
+nn = KNN(5)
+nn.fit(iris, save = True)
+
+# Find neighbors for data subset
+nn.find_neighbors(iris.iloc[:10, :], save = True)
+
+# all kinds of data in the class
+# nn.self_distances_
+# nn.self_indices_
+# nn.model_
+# nn.all_data_
+
+# nn.distances
+# nn.indices
+
+
+
+
+################################################################
+### -------------------------------------------------------- ###
 ### ------------------------- vision ----------------------- ###
 ### -------------------------------------------------------- ###
 ################################################################
@@ -203,7 +233,7 @@ preds = dbscan.predict(eps = 0.36, save = True)
 ################################################################
 from plantstat.vision.stomata_vision import OpenStomataPredictor
 
-predictor = OpenStomataPredictor('PATH', 16)
+predictor = OpenStomataPredictor('PATH', batch_size = 16)
 
 predictor.predict(save = True)
 predictor.visualize(save = True)
