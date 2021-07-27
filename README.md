@@ -36,10 +36,14 @@ a.outliers()
 a.corrs(method = 'pearson', heatmap = True, save = True)
 a.QQplot(save = True)
 a.pair_plot(save = True)
-a.basic_stats(save = True)
+
+# Basic data statistics
+a.basic_stats(p_value = False)
+a.basic_stats(p_value = True, save = True)
 
 # Statistical tests
-a.var_compare(save = True)
+a.var_compare(p_value = False)
+a.var_compare(p_value = True, save = True)
 ```
 
 - AutoML_Classifier - the main class for classification.
