@@ -51,12 +51,14 @@ a.boxplot(save = True)
 # Variables' lengths
 a.var_len()
 
-# Data Frame with basic statistics (with or without saving in local directory)
+# Data Frame with basic statistics (with or without p_values and saving in local directory)
 a.basic_stats()
+a.basic_stats(p_value = False)
 a.basic_stats(save = True)
 
-# Data Frame with statistics tests (with or without saving in local directory)
+# Data Frame with statistics tests (with or without p_values and saving in local directory)
 a.var_compare()
+a.var_compare(p_value = False)
 a.var_compare(save = True)
 
 # Pairs of variables
