@@ -25,8 +25,9 @@ A package with a set of functions for fast and convenient statistical processing
 |  | SVR | | |
 
 ## Data generators:
-| ClusterData |
+| Generator |
 | --- |
+| ClusterData |
 | RegressionData |
 
 ```python
