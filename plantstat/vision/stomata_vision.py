@@ -9,11 +9,8 @@ from torchvision import transforms
 from torch.utils.data import DataLoader
 from google_drive_downloader import GoogleDriveDownloader as gdd
 
-import warnings
-warnings.filterwarnings('ignore')
 
-
-def set_seed(seed = 0):
+def set_seed(seed=0):
     '''
     Set seed for data reproducibility.
     Args:
@@ -71,13 +68,14 @@ class OpenStomataPredictor:
         self.batch_size = batch_size
         self.classes = ['close', 'open']
 
-    def predict(self, save = False, f_format = 'excel'):
+    def predict(self, save=False, f_format='excel'):
         '''
         Main function for stomata open/close classification.
         Args:
             save - save prediction in a local directory or not
             f_format - format of data saving (if save = True): 'csv' or 'excel' (default)
         '''
+        assert f_format in {'excel', 'csv'}
         device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         data_loader = dataloader(self.path, self.batch_size)
         
@@ -119,7 +117,7 @@ class OpenStomataPredictor:
         print('Open: {:.1f}%'.format(OpenStomata))
         print('Close: {:.1f}%'.format(100 - OpenStomata))
 
-    def visualize(self, n_imgs = 16, save = False):
+    def visualize(self, n_imgs=16, save=False):
         '''
         Visualize some random stomata open/close classification results.
         Args:

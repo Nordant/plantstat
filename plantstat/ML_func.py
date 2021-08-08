@@ -37,12 +37,12 @@ class AutoML_Classifier:
         cv - a number of cross_validation repeats (default = 5).
         Set False for those algorithms you don't want to use.
     '''
-    def __init__(self, scoring_func = 'balanced_accuracy', 
-                 n_iter = 50, random_state = 0, cv = 5,
-                 LogisticRegression = True, KNN = True,
-                 DecisionTree = True, RandomForest = True,
-                 LinearSVC = True, GradientBoosting = True,
-                 XGB = True):
+    def __init__(self, scoring_func='balanced_accuracy',
+                 n_iter=50, random_state=0, cv=5,
+                 LogisticRegression=True, KNN=True,
+                 DecisionTree=True, RandomForest=True,
+                 LinearSVC=True, GradientBoosting=True,
+                 XGB=True):
         self.scoring_func = scoring_func
         self.n_iter = n_iter
         self.random_state = random_state
@@ -105,7 +105,7 @@ class AutoML_Classifier:
         if self.LogisticRegression == True:
             optimization_grid.append({
                 'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
-                'preprocessor__numerical__cleaner_strategy': ['mean', 'median'],
+                'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
                 'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
                 'estimator': [LogisticRegression()]
             })
@@ -182,7 +182,7 @@ class AutoML_Classifier:
                   scoring = self.scoring_func, 
                   n_jobs = -1, 
                   random_state = self.random_state, 
-                  verbose = 4,
+                  verbose = 1,
                   cv = self.cv,
                   return_train_score = True)
 
@@ -196,7 +196,7 @@ class AutoML_Classifier:
         print('{} was used as the best algorithm!'.format(best_alg))
         
         
-    def predict(self, X, y = None, save = False, f_format = 'excel'):
+    def predict(self, X, save=False, f_format='excel'):
         '''
         Class prediction based on trained AutoML model.
         Args:
@@ -206,6 +206,7 @@ class AutoML_Classifier:
         Return:
             the numeric classes.
         '''
+        assert f_format in {'excel', 'csv'}
         preds = pd.DataFrame(self.best_estimator_.predict(X))
         if save == True and f_format == 'csv':
             preds.to_csv('preds.csv')
@@ -215,7 +216,7 @@ class AutoML_Classifier:
             pass
         return self.best_estimator_.predict(X)
     
-    def predict_proba(self, X, y = None, save = False, f_format = 'excel'):
+    def predict_proba(self, X, save=False, f_format='excel'):
         '''
         Class prediction based on trained AutoML model.
         Args:
@@ -225,6 +226,7 @@ class AutoML_Classifier:
         Return: 
             the probabilities of classes.
         '''
+        assert f_format in {'excel', 'csv'}
         preds = pd.DataFrame(self.best_estimator_.predict_proba(X))
         if save == True and f_format == 'csv':
             preds.to_csv('preds.csv')
@@ -234,8 +236,8 @@ class AutoML_Classifier:
             pass
         return self.best_estimator_.predict_proba(X)
     
-    def classification_report(self, X, y, labels = None, cmap = 'inferno',
-                              save = False):
+    def classification_report(self, X, y, labels=None, cmap='inferno',
+                              save=False):
         '''
         Prediction classification report.
         Args:
@@ -268,12 +270,12 @@ class AutoML_Regressor:
         cv - a number of cross_validation repeats (default = 5).
         Set False for those algorithms you don't want to use.
     '''
-    def __init__(self, scoring_func = 'neg_mean_squared_error', 
-                 n_iter = 50, random_state = 0, cv = 5,
-                 LinearRegression = True, Lasso = True,
-                 Ridge = True, ElasticNet = True,
-                 RandomForest = True, SVR = True,
-                 GradientBoosting = True, XGB = True):
+    def __init__(self, scoring_func='neg_mean_squared_error',
+                 n_iter=50, random_state=0, cv=5,
+                 LinearRegression=True, Lasso=True,
+                 Ridge=True, ElasticNet=True,
+                 RandomForest=True, SVR=True,
+                 GradientBoosting=True, XGB=True):
         self.scoring_func = scoring_func
         self.n_iter = n_iter
         self.random_state = random_state
@@ -340,7 +342,7 @@ class AutoML_Regressor:
         if self.LinearRegression == True:
             optimization_grid.append({
                 'preprocessor__numerical__scaler': [RobustScaler(), StandardScaler(), MinMaxScaler()],
-                'preprocessor__numerical__cleaner_strategy': ['mean', 'median'],
+                'preprocessor__numerical__cleaner__strategy': ['mean', 'median'],
                 'feature_selector__k': list(np.arange(1, total_features, 5)) + ['all'],
                 'estimator': [LinearRegression()],
             })
@@ -438,7 +440,7 @@ class AutoML_Regressor:
                   scoring = self.scoring_func, 
                   n_jobs = -1, 
                   random_state = self.random_state, 
-                  verbose = 4,
+                  verbose = 1,
                   cv = self.cv,
                   return_train_score = True)
 
@@ -452,7 +454,7 @@ class AutoML_Regressor:
         print('{} was used as the best algorithm!'.format(best_alg))
         
         
-    def predict(self, X, y = None, save = False, f_format = 'excel'):
+    def predict(self, X, save=False, f_format='excel'):
         '''
         Prediction based on trained AutoML model.
         Args:
@@ -462,6 +464,7 @@ class AutoML_Regressor:
         Return:
             the numeric classes.
         '''
+        assert f_format in {'excel', 'csv'}
         preds = pd.DataFrame(self.best_estimator_.predict(X))
         if save == True and f_format == 'csv':
             preds.to_csv('preds.csv')
@@ -472,7 +475,7 @@ class AutoML_Regressor:
         return self.best_estimator_.predict(X)
 
     
-    def prediction_report(self, X, y, metric = mean_absolute_error, save = False):
+    def prediction_report(self, X, y, metric=mean_absolute_error, save=False):
         '''
         Prediction report with metric score and two plots.
         Args:
@@ -527,9 +530,9 @@ class Clusterer:
         eps_range - the range of epsilons (DBSCAN method) that the algorithm will work with (default = (0.01, 1.01))
         random_state - a random_state parameter (default = 0)
     '''
-    def __init__(self, clusterer = 'kmeans', is_pca = False, n_pca_comp = 2,
-                 centroids_range = (2, 11), eps_range = (0.01, 1.01),
-                 random_state = 0):
+    def __init__(self, clusterer='kmeans', is_pca=False, n_pca_comp=2,
+                 centroids_range=(2, 11), eps_range=(0.01, 1.01),
+                 random_state=0):
         self.clusterer = clusterer
         self.is_pca = is_pca
         self.pca_comp = n_pca_comp
@@ -537,7 +540,7 @@ class Clusterer:
         self.eps_range = eps_range
         self.random_state = random_state
         
-    def fit(self, X, save = False, f_format = 'excel'):
+    def fit(self, X, save=False, f_format='excel'):
         '''
         Args:
             X - a data frame with features.
@@ -549,6 +552,7 @@ class Clusterer:
             self.scores - quality values for all models
             a visualization of model quality changes
         '''
+        assert f_format in {'excel', 'csv'}
         if X.isnull().sum().sum() > 0:
             X = X.dropna()
             print('Data has NaN values! Some rows were dropped!')
@@ -614,16 +618,16 @@ class Clusterer:
             plt.show()
             
         if save == True and f_format == 'csv':
-            pd.DataFrame(self.X).to_csv('X.csv')
+            pd.DataFrame(self.X).to_csv('data_preprocessed.csv')
             self.scores.to_csv('scores.csv')
         elif save == True and f_format == 'excel':
-            pd.DataFrame(self.X).to_excel('X.xlsx', sheet_name = 'X')
+            pd.DataFrame(self.X).to_excel('data_preprocessed.xlsx', sheet_name = 'data_preprocessed')
             self.scores.to_excel('scores.xlsx', sheet_name = 'scores')
         else:
             pass
         
-    def predict(self, k = None, eps = None, min_samples = 5, 
-                save = False, f_format = 'excel'):
+    def predict(self, k=None, eps=None, min_samples=5,
+                save=False, f_format='excel'):
         '''
         Class prediction.
         Args:
@@ -636,6 +640,7 @@ class Clusterer:
             the numeric classes
             if 'is_pca' = True or the number of features = 2, also return plot with labeled data
         '''
+        assert f_format in {'excel', 'csv'}
         if self.clusterer == 'kmeans':
             print('Using KMeans...')
             kmeans = KMeans(init = 'k-means++', n_clusters = k,
@@ -693,14 +698,14 @@ class KNN:
     Nearest Neighbors algorithm for the similarity finding.
     Args:
         n_neighbors - Number of neighbors to use (default - 2)
-        missing_values - approach to missing values: "fill_zero" (default) or "drop"
+        missing_values - approach to missing values: "fill_zero"
     '''
-    def __init__(self, n_neighbors = 2, missing_values = 'fill_zero'):
+    def __init__(self, n_neighbors=2, missing_values='fill_zero'):
         assert missing_values in {'fill_zero'}
         self.n_neighbors = n_neighbors
         self.missing_values = missing_values
         
-    def fit(self, X, save = False):
+    def fit(self, X, save=False):
         '''
         Args:
             X - a data frame
@@ -737,7 +742,7 @@ class KNN:
         else:
             pass
         
-    def find_neighbors(self, X, missing_values = 'fill_zero', save = False):
+    def find_neighbors(self, X, save=False):
         '''
         Find nearest neighbors for the subset.
         Args:
