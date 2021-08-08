@@ -22,12 +22,12 @@ from plantstat import Variable_Analyzer
 # Data example
 data = np.array([[54, 27, 43, 30, 29, 23, 71, 68, 64, 66, 64, 70, 49, 49, 
                  55, 45, 48, 49, 38],
-                [53, 43, 55, 63, 82, 79, 70, 57, 60, 43, 49, 65, 54],
-                [53, 43, 46, 74, 57, 66, 72, 38, 45, 63, 56, 58, 57, 39, 
-                 35, 64, 45, 52],
-                [36, 45, 23, 83, 70, 82, 77, 41, 37, 48, 55, 52, 22],
-                [35, 42, 49, 74, 83, 73, 68, 60, 45, 70, 52, 72, 59, 48, 
-                 62, 72, 62, 38]])
+                 [53, 43, 55, 63, 82, 79, 70, 57, 60, 43, 49, 65, 54],
+                 [53, 43, 46, 74, 57, 66, 72, 38, 45, 63, 56, 58, 57, 39,
+                  35, 64, 45, 52],
+                 [36, 45, 23, 83, 70, 82, 77, 41, 37, 48, 55, 52, 22],
+                 [35, 42, 49, 74, 83, 73, 68, 60, 45, 70, 52, 72, 59, 48,
+                  62, 72, 62, 38]])
 labels = ['Control', 'Var1', 'Var2', 'Var3', 'Var4']
 
 # Define Analyzer
@@ -91,8 +91,7 @@ from plantstat import AutoML_Classifier
 
 # Data example
 iris = datasets.load_iris()
-X = pd.DataFrame(iris.data)
-y = iris.target
+X, y = pd.DataFrame(iris.data), iris.target
 class_names = iris.target_names
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state = 0)
 
@@ -100,8 +99,7 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, rando
 model = AutoML_Classifier(n_iter = 100)
 model.fit(X_train, y_train)
 
-# Model detailed information
-
+# # Model detailed information
 # model.cv_results_
 # model.best_estimator_
 # model.best_pipeline
@@ -123,9 +121,12 @@ model.classification_report(X_test, y_test, labels = class_names)
 ### -------------------------------------------------------- ###
 ################################################################
 from plantstat import AutoML_Regressor
+from plantstat.data_generators import RegressionData
 
-# Data example
-X, y = datasets.load_boston(return_X_y = True)
+# Create synthetic data with 5 features (3 informative) and 1000 samples (with plantstat class RegressionData; see data_generators)
+data_gen = RegressionData(n_features = 5, n_samples = 1000, n_informative = 3, n_targets = 1,
+                          bias = 0.0, noise = 0.2, shuffle = True, random_state = 0, return_labels = True)
+X, y = data_gen.generate(save = True)
 X = pd.DataFrame(X)
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size = 0.3, random_state = 0)
 
@@ -139,7 +140,7 @@ model.fit(X_train, y_train)
 # model.best_estimator_
 # model.best_pipeline
 
-# Predcition and report (with prediction saving)
+# Prediction and report (with prediction saving)
 model.predict(X_test, save = True)[:10]
 model.prediction_report(X_test, y_test, save = True)
 
@@ -157,10 +158,10 @@ model.prediction_report(X_test, y_test)
 from plantstat import Clusterer
 from plantstat.data_generators import ClusterData
 
-# Create syntetic data with 5 features, 1000 samples and 4 clusters
+# Create synthetic data with 5 features, 1000 samples and 4 clusters (with plantstat class ClusterData; see data_generators)
 data_gen = ClusterData(n_features = 5, n_samples = 1000, cluster_std = 1.2,
-                       centers_range = (4, 5), random_state = 0)
-X = pd.DataFrame(data_gen.generate())
+                       centers_range = (4, 5), random_state = 0, return_labels = False)
+X = pd.DataFrame(data_gen.generate(save = True))
 
 # Create K-means model for clustering (the model includes PCA with 2 components)
 kmeans = Clusterer(is_pca = True, clusterer = 'kmeans')
@@ -223,7 +224,6 @@ nn.find_neighbors(iris.iloc[:10, :], save = True)
 
 
 
-
 ################################################################
 ### -------------------------------------------------------- ###
 ### ------------------------- vision ----------------------- ###
@@ -238,7 +238,7 @@ from plantstat.vision.stomata_vision import OpenStomataPredictor
 predictor = OpenStomataPredictor('PATH', batch_size = 16)
 
 predictor.predict(save = True)
-predictor.visualize(save = True)
+predictor.visualize(save = True, n_imgs = 16)
 
 predictor.report_
 
