@@ -1,3 +1,5 @@
+![PlantStat](https://github.com/Nordant/plantstat/blob/main/image.jpeg?raw=true)
+
 # PlantStat
 
 A package with a set of functions for fast and convenient statistical processing of experimental data. Also includes simple AutoML algorithms for classification, regression, clustering, and CV of microscopic images. Developed for needs of the LPBPS (Laboratory of Physiology and Biochemistry of Plant Stress; Kharkiv, Ukraine). The package is used by some educational and scientific institutions in Ukraine.
