@@ -22,6 +22,25 @@ A package with a set of functions for fast and convenient statistical processing
 | XGB | XGB | | |
 |  | SVR | | |
 
+## Data generators:
+| ClusterData |
+| --- |
+| RegressionData |
+
+```python
+from plantstat.data_generators import ClusterData
+data_gen = ClusterData(n_features = 5, n_samples = 1000, cluster_std = 1.2,
+                       centers_range = (4, 5), random_state = 0, return_labels = False)
+X = pd.DataFrame(data_gen.generate(save = True))
+```
+
+```python
+from plantstat.data_generators import RegressionData
+data_gen = RegressionData(n_features = 5, n_samples = 1000, n_informative = 3, n_targets = 1,
+                          bias = 0.0, noise = 0.2, shuffle = True, random_state = 0, return_labels = True)
+X, y = data_gen.generate(save = True)
+```
+
 ## Examples:
 - Variable_Analyzer - the main class for statistical data processing.
 ```python
@@ -157,7 +176,7 @@ nn.find_neighbors(iris.iloc[:10, :], save = True)
 # nn.indices
 ```
 
-- OpenStomataPredictor - the main class for stomata open/close classes prediction.
+## OpenStomataPredictor - the main class for stomata open/close classes prediction.
 ```python
 from plantstat.vision.stomata_vision import OpenStomataPredictor
 
