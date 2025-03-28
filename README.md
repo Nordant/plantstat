@@ -1,6 +1,6 @@
 ![PlantStat](https://github.com/Nordant/plantstat/blob/main/image.jpeg?raw=true)
 
-# PlantStat <img align="right" src="https://img.shields.io/badge/version-0.4.1-brightgreen" alt="version"/>
+# PlantStat <img align="right" src="https://img.shields.io/github/forks/Nordant/plantstat" alt="forks"/> <img align="right" src="https://img.shields.io/github/stars/Nordant/plantstat" alt="stars"/> <img align="right" src="https://img.shields.io/github/repo-size/Nordant/plantstat" alt="repo-size"/> <img align="right" src="https://img.shields.io/github/license/Nordant/plantstat" alt="license"/> <img align="right" src="https://img.shields.io/badge/version-0.4.1-brightgreen" alt="version"/>
 
 A package with a set of functions for fast and convenient statistical processing of experimental data. Also includes simple AutoML algorithms for classification, regression, clustering, and CV of microscopic images. Developed for needs of the LPBPS (Laboratory of Physiology and Biochemistry of Plant Stress; Kharkiv, Ukraine).
 
